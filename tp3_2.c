@@ -10,7 +10,7 @@ struct Producto {
     int Cantidad; // entre 1 y 10
     char * TipoProducto; // Algún valor del arreglo TiposProductos
     float PrecioUnitario; // entre 10 - 100
-};
+}typedef Producto;
 
 struct Cliente {
     int ClienteID; // Numerado en el ciclo iterativo
@@ -18,69 +18,93 @@ struct Cliente {
     int CantidadProductosAPedir; // (aleatorio entre 1 y 5)
     struct Producto * Productos; //El tamaño de este arreglo depende de la variable
     // “CantidadProductosAPedir”
-};
+}typedef Cliente;
 
-int costoTotalDeUnProducto(struct Producto producto);
+void cargaClientes(Cliente * pntClientes, int cantClientes);
+int cargaProductos(int prodID,Producto * pntProducto, int productosAPedir);
+void mostrarClientes(Cliente * pntClientes, int cantClientes);
+float mostrarProductos(Producto * pntProducto, int productosAPedir);
+float costoTotal(Producto * pntProducto);
 
 int main(){
     srand(time(NULL));
+    int cantClientes;
 
-    int cantidadDeClientes;
-    struct Cliente * ptrCliente;
-    struct Cliente aux;
+    printf("Cuantos clientes desea ingresar?: ");
+    scanf("%d",&cantClientes);
+    system("cls");
 
-    printf("Ingrese la cantidad de clientes: ");
-    scanf("%d",&cantidadDeClientes);
+    Cliente * pntCliente = (Cliente *) malloc(sizeof(Cliente)*cantClientes);
 
-    ptrCliente = (struct Cliente *) malloc(cantidadDeClientes*sizeof(struct Cliente));
+    cargaClientes(pntCliente,cantClientes);
+    mostrarClientes(pntCliente,cantClientes);
 
-    int ProductoIdAux = 1;
+    free(pntCliente);
 
-    for (int i = 0; i < cantidadDeClientes; i++)
-    {
-        aux.ClienteID = i+1;
-        printf("Ingrese el nombre del cliente: ");
-        gets(aux.NombreCliente);
-        aux.CantidadProductosAPedir = 1 + rand() % 6;
-        aux.Productos[aux.CantidadProductosAPedir];
-
-        for (int c = 0; c < aux.CantidadProductosAPedir; c++)
-        {
-            aux.Productos[c].ProductoID = ProductoIdAux;
-            aux.Productos[c].Cantidad = 1 + rand() % 10;
-            aux.Productos[c].TipoProducto = TiposProductos[rand() % 6];
-            aux.Productos[c].PrecioUnitario = 11 + rand() % 100;
-            ProductoIdAux++;
-        }
-
-        ptrCliente[i] = aux;
-    }
-    
-    for (int i = 0; i < cantidadDeClientes; i++)
-    {
-        int totalFinal = 0;
-        printf("ID del Cliente: %d\n", ptrCliente[i].ClienteID);
-        printf("Nombre: %s\n", ptrCliente[i].NombreCliente);
-        printf("Cantidad de Productos a pedir: %d\n", ptrCliente[i].CantidadProductosAPedir);
-        printf("Productos que pidio: \n\n");
-
-        for (int c = 0; c < ptrCliente[i].CantidadProductosAPedir; i++)
-        {
-            int total = costoTotalDeUnProducto(ptrCliente[i].Productos[c]);
-            printf("ID: %d\n", ptrCliente[i].Productos[c].ProductoID);
-            printf("Tipo: %s\n", ptrCliente[i].Productos[c].TipoProducto);
-            printf("Cantidad: %d\n", ptrCliente[i].Productos[c].Cantidad);
-            printf("Precio Unitario: %d\n", ptrCliente[i].Productos[c].PrecioUnitario);
-            printf("Precio Final: %d\n\n", total);
-            totalFinal += total;
-        }
-            printf("Precio Total Final: %d\n\n", totalFinal);
-    }
-
-    system("pause");
+    getchar();
+    getchar();
     return 0;
 }
 
-int costoTotalDeUnProducto(struct Producto producto){
-    return producto.Cantidad*producto.PrecioUnitario;
+void cargaClientes(Cliente * pntClientes, int cantClientes){
+    int prodID = 0;
+    for (int i = 0; i < cantClientes; i++)
+    {
+        char nombre[100];
+
+        printf("Nombre del Cliente: ");
+        scanf("%s",nombre);
+        system("cls");
+
+        (pntClientes + i)->ClienteID = i+1;
+        (pntClientes + i)->NombreCliente = (char*)malloc(sizeof(nombre)*(strlen(nombre)+1));
+        strcpy((pntClientes + i)->NombreCliente,nombre);
+
+        (pntClientes + i)->CantidadProductosAPedir = 1 + rand() % 5 ;
+        (pntClientes + i)->Productos = (Producto *)malloc(sizeof(Producto)*(pntClientes + i)->CantidadProductosAPedir);
+        prodID = cargaProductos(prodID,(pntClientes + i)->Productos,(pntClientes + i)->CantidadProductosAPedir);
+    }
+}
+
+int cargaProductos(int prodID,Producto * pntProducto, int productosAPedir){
+    for (int i = 0; i < productosAPedir; i++)
+    {
+        prodID++;
+        (pntProducto + i)->ProductoID = prodID;
+        (pntProducto + i)->Cantidad = 1 + rand() % 10;
+        (pntProducto + i)->PrecioUnitario = 10 + rand() % 101;
+        (pntProducto + i)->TipoProducto = TiposProductos[i];
+    }
+    return prodID;
+}
+
+void mostrarClientes(Cliente * pntClientes, int cantClientes){
+    float total;
+    for (int i = 0; i < cantClientes; i++)
+    {
+        printf("/////////////////////////////////////////////////////////\n\n");
+        printf("Nombre del Cliente: %s\n", (pntClientes + i)->NombreCliente);
+        printf("ID: %d\n", (pntClientes + i)->ClienteID);
+        printf("Cantidad de Productos a Pedir: %d\n\n", (pntClientes + i)->CantidadProductosAPedir);
+        total = mostrarProductos((pntClientes + i)->Productos,(pntClientes + i)->CantidadProductosAPedir);
+        printf("Costo Total del Cliente: %.2f\n", total);
+    }
+}
+
+float mostrarProductos(Producto * pntProducto, int productosAPedir){
+    float total = 0;
+    printf("Productos: \n\n");
+    for (int i = 0; i < productosAPedir; i++)
+    {
+        printf("Tipo: %s\n", (pntProducto + i)->TipoProducto);
+        printf("ID: %d\n", (pntProducto + i)->ProductoID);
+        printf("Cantidad: %d\n", (pntProducto + i)->Cantidad);
+        printf("Precio: %.2f\n\n", (pntProducto + i)->PrecioUnitario);
+        total = total + costoTotal(pntProducto + i);
+    }
+    return total;
+}
+
+float costoTotal(Producto * pntProducto){
+    return((pntProducto->Cantidad)*(pntProducto->PrecioUnitario));
 }
